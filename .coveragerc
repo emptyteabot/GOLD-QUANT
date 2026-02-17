@@ -1,0 +1,52 @@
+# Coverage.py配置文件
+
+[run]
+# 源代码目录
+source = .
+
+# 忽略的文件
+omit =
+    */tests/*
+    */test_*.py
+    */__pycache__/*
+    */venv/*
+    */.venv/*
+    */env/*
+    */.env/*
+    */site-packages/*
+    */dist-packages/*
+    */_archive/*
+    */backend/*
+    */frontend/*
+    setup.py
+    conftest.py
+
+# 并行模式
+parallel = True
+
+[report]
+# 精度
+precision = 2
+
+# 显示缺失的行
+show_missing = True
+
+# 跳过覆盖的文件
+skip_covered = False
+
+# 排序
+sort = Cover
+
+# 忽略错误
+ignore_errors = True
+
+[html]
+# HTML报告目录
+directory = htmlcov
+
+# 报告标题
+title = AURUM测试覆盖率报告
+
+[xml]
+# XML报告文件
+output = coverage.xml

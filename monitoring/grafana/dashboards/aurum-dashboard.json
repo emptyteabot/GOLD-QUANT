@@ -1,0 +1,110 @@
+{
+  "dashboard": {
+    "title": "AURUM交易系统监控",
+    "tags": ["aurum", "trading"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "系统概览",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job='aurum-backend'}",
+            "legendFormat": "后端状态"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "CPU使用率",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "100 - (avg by(instance) (irate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)",
+            "legendFormat": "CPU使用率"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+      },
+      {
+        "id": 3,
+        "title": "内存使用率",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+            "legendFormat": "内存使用率"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+      },
+      {
+        "id": 4,
+        "title": "交易盈亏",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "aurum_total_pnl",
+            "legendFormat": "总盈亏"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 12}
+      },
+      {
+        "id": 5,
+        "title": "最大回撤",
+        "type": "gauge",
+        "targets": [
+          {
+            "expr": "aurum_max_drawdown * 100",
+            "legendFormat": "最大回撤%"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 12}
+      },
+      {
+        "id": 6,
+        "title": "交易次数",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "aurum_trades_total",
+            "legendFormat": "总交易次数"
+          }
+        ],
+        "gridPos": {"h": 4, "w": 6, "x": 18, "y": 12}
+      },
+      {
+        "id": 7,
+        "title": "API响应时间",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m]))",
+            "legendFormat": "P95响应时间"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 20}
+      },
+      {
+        "id": 8,
+        "title": "数据库连接数",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "pg_stat_activity_count",
+            "legendFormat": "活跃连接"
+          }
+        ],
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 20}
+      }
+    ],
+    "refresh": "10s",
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    }
+  }
+}

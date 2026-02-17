@@ -1,0 +1,10 @@
+# 测试相关依赖
+pytest>=7.0.0
+pytest-cov>=3.0.0
+pytest-asyncio>=0.18.0
+pytest-mock>=3.6.0
+pytest-timeout>=2.1.0
+pytest-html>=3.1.0
+pytest-xdist>=2.5.0
+memory-profiler>=0.60.0
+coverage>=6.0.0

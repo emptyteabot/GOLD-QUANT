@@ -1,0 +1,74 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { color-scheme: dark; }
+
+body {
+  background: #0b0e11;
+  color: #eaecef;
+  font-family: 'Inter', system-ui, -apple-system, 'Microsoft YaHei', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #474d57; border-radius: 4px; }
+
+.font-mono { font-family: 'JetBrains Mono', 'SF Mono', monospace; }
+
+/* pulse animation for live dot */
+@keyframes livePulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.4; transform: scale(0.85); }
+}
+.live-pulse { animation: livePulse 2s ease-in-out infinite; }
+
+/* glow effect */
+.glow-green { box-shadow: 0 0 12px rgba(14, 203, 129, 0.15); }
+.glow-red { box-shadow: 0 0 12px rgba(246, 70, 93, 0.15); }
+.glow-gold { box-shadow: 0 0 20px rgba(252, 213, 53, 0.1); }
+
+/* OKX-style card */
+.okx-card {
+  background: #12161c;
+  border: 1px solid #1e2329;
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+.okx-card:hover { border-color: #2b3139; }
+
+/* 自定义滑块样式 */
+.slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: #1e2329;
+  outline: none;
+  border-radius: 8px;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #fcd535;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #fcd535;
+  border-radius: 50%;
+  cursor: pointer;
+  border: none;
+}
+
+
+
+

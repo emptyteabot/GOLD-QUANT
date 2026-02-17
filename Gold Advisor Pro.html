@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gold Advisor Pro™ v3.0</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, 'Microsoft YaHei', sans-serif;
+            background: #0b0e11;
+            color: #e5e7eb;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background:
+                radial-gradient(ellipse at 15% 20%, rgba(255,215,0,0.04) 0%, transparent 50%),
+                radial-gradient(ellipse at 85% 80%, rgba(0,184,212,0.03) 0%, transparent 50%);
+            pointer-events: none; z-index: 0;
+        }
+        .hero {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 80px 20px 40px;
+        }
+        .logo {
+            font-size: 64px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 40px rgba(255,215,0,0.2));
+        }
+        h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: -1px;
+            background: linear-gradient(90deg, #ffd700, #f0c030, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .badge {
+            display: inline-block;
+            background: rgba(255,215,0,0.08);
+            border: 1px solid rgba(255,215,0,0.15);
+            color: #ffd700;
+            padding: 4px 18px;
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-top: 12px;
+        }
+        .subtitle {
+            color: #6b7280;
+            font-size: 1.05rem;
+            margin-top: 16px;
+            font-weight: 400;
+        }
+        .btn-group {
+            margin-top: 40px;
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .btn-primary {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: linear-gradient(135deg, #ffd700, #f0a000);
+            color: #0b0e11;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 16px 48px;
+            border-radius: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            transition: all 0.25s;
+            box-shadow: 0 8px 32px rgba(255,215,0,0.15);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 48px rgba(255,215,0,0.3);
+        }
+        .btn-ghost {
+            display: inline-flex; align-items: center; gap: 8px;
+            background: transparent;
+            color: #ffd700;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 14px 36px;
+            border-radius: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            border: 1.5px solid rgba(255,215,0,0.25);
+            transition: all 0.25s;
+        }
+        .btn-ghost:hover {
+            background: rgba(255,215,0,0.05);
+            border-color: rgba(255,215,0,0.5);
+        }
+        .features {
+            position: relative; z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            max-width: 900px;
+            margin: 48px auto;
+            padding: 0 20px;
+        }
+        .feature {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 16px;
+            padding: 28px 20px;
+            text-align: center;
+            transition: all 0.25s;
+        }
+        .feature:hover {
+            border-color: rgba(255,215,0,0.15);
+            background: rgba(255,215,0,0.02);
+            transform: translateY(-2px);
+        }
+        .feature-icon { font-size: 2rem; margin-bottom: 10px; }
+        .feature-title { color: #e5e7eb; font-weight: 700; font-size: 0.9rem; }
+        .feature-desc { color: #6b7280; font-size: 0.78rem; margin-top: 6px; line-height: 1.5; }
+        .setup {
+            position: relative; z-index: 1;
+            max-width: 600px;
+            margin: 20px auto 60px;
+            padding: 0 20px;
+        }
+        .setup-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 36px;
+        }
+        .setup-box h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e5e7eb;
+            margin-bottom: 20px;
+        }
+        .setup-box ol { padding-left: 18px; }
+        .setup-box li { color: #9ca3af; margin: 12px 0; line-height: 1.7; font-size: 0.9rem; }
+        .setup-box code {
+            background: rgba(255,215,0,0.08);
+            color: #ffd700;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .status-toast {
+            position: fixed; top: 24px; right: 24px; z-index: 999;
+            background: rgba(18,22,28,0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 14px;
+            padding: 14px 24px;
+            display: none;
+            font-size: 0.9rem;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+        }
+        .footer {
+            position: relative; z-index: 1;
+            text-align: center;
+            padding: 24px;
+            color: #4b5563;
+            font-size: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <div class="logo">🥇</div>
+        <h1>Gold Advisor Pro</h1>
+        <div class="badge">A股黄金日内智能策略 · v3.0</div>
+        <p class="subtitle">七维策略引擎 · 行情智能识别 · K线形态分析 · 专业级风控</p>
+        <div class="btn-group">
+            <button class="btn-primary" onclick="launchApp()">🚀 启动系统</button>
+            <a class="btn-ghost" href="http://localhost:8501" target="_blank">🌐 打开 localhost:8501</a>
+        </div>
+    </div>
+
+    <div class="status-toast" id="toast"></div>
+
+    <div class="features">
+        <div class="feature">
+            <div class="feature-icon">📊</div>
+            <div class="feature-title">实时行情</div>
+            <div class="feature-desc">22只黄金标的<br>ETF / 基金 / 股票</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🎯</div>
+            <div class="feature-title">智能信号</div>
+            <div class="feature-desc">七维策略投票<br>精准买卖提示</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🔍</div>
+            <div class="feature-title">行情识别</div>
+            <div class="feature-desc">趋势 / 震荡 / 暴跌<br>自适应策略</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🕯️</div>
+            <div class="feature-title">K线形态</div>
+            <div class="feature-desc">锤子线 / 启明星<br>吞没 / 十字星</div>
+        </div>
+        <div class="feature">
+            <div class="feature-icon">🌍</div>
+            <div class="feature-title">宏观分析</div>
+            <div class="feature-desc">国际金价 / 上海金<br>板块资金流向</div>
+        </div>
+    </div>
+
+    <div class="setup">
+        <div class="setup-box">
+            <h3>📖 首次使用</h3>
+            <ol>
+                <li>确保已安装 <a href="https://python.org/downloads" target="_blank" style="color:#ffd700">Python 3.10+</a>（勾选 <code>Add to PATH</code>）</li>
+                <li>双击 <code>一键启动.bat</code>，系统自动安装依赖</li>
+                <li>等待 1-2 分钟，浏览器自动打开</li>
+                <li>或点击上方 <strong>启动系统</strong> 按钮</li>
+            </ol>
+        </div>
+    </div>
+
+    <div class="footer">
+        © 2026 Gold Advisor Pro™ · All Rights Reserved<br>
+        ⚠️ 仅供参考，不构成投资建议
+    </div>
+
+    <script>
+        function showToast(msg, type) {
+            const t = document.getElementById('toast');
+            t.style.display = 'block';
+            t.style.borderColor = type === 'ok' ? 'rgba(0,230,118,0.3)' : 'rgba(255,82,82,0.3)';
+            t.innerHTML = msg;
+            setTimeout(() => t.style.display = 'none', 4000);
+        }
+        function launchApp() {
+            showToast('⏳ 正在连接...', 'ok');
+            fetch('http://localhost:8501/', {mode:'no-cors'})
+                .then(() => {
+                    showToast('✅ 已连接，正在打开', 'ok');
+                    setTimeout(() => window.open('http://localhost:8501','_blank'), 500);
+                })
+                .catch(() => showToast('⚠️ 系统未启动，请先双击 <code>一键启动.bat</code>', 'err'));
+        }
+    </script>
+</body>
+</html>
