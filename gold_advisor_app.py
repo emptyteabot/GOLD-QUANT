@@ -17,6 +17,12 @@ import os
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# 加载默认环境变量配置
+try:
+    import config_defaults
+except:
+    pass
+
 import gold_config as cfg
 from ashare_provider import AShareGoldProvider
 from gold_strategy_engine import (GoldStrategyEngine, TechnicalIndicators, TradeSignal,
