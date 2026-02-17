@@ -10,9 +10,8 @@ python-dotenv>=1.0.0
 akshare>=1.12.0
 tushare>=1.2.89
 
-# 技术分析
-ta-lib>=0.4.28
-TA-Lib>=0.4.28
+# 技术分析（不用ta-lib，用pandas-ta替代）
+pandas-ta>=0.3.14b
 
 # 机器学习
 scikit-learn>=1.3.0
