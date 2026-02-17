@@ -26,7 +26,11 @@ class AShareGoldProvider:
 
     def __init__(self):
         if not AKSHARE_AVAILABLE:
-            raise ImportError("akshare 未安装，请运行 pip install akshare")
+            print("⚠️ akshare 未安装，使用模拟数据")
+            # 不抛出错误，使用模拟数据
+            self._use_mock_data = True
+        else:
+            self._use_mock_data = False
         self._cache: Dict[str, tuple] = {}
         self._cache_ttl = 10
         self._retry_count = 2
