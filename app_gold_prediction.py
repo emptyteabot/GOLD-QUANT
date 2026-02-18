@@ -28,8 +28,8 @@ except:
     ASTOCK_AVAILABLE = False
 
 st.set_page_config(
-    page_title="彭博终端 - AI投资系统",
-    page_icon="📊",
+    page_title="AI智投 - 黄金与A股预测",
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -40,409 +40,440 @@ def get_beijing_time():
     beijing_tz = pytz.timezone('Asia/Shanghai')
     return datetime.now(beijing_tz)
 
-# 彭博终端风格CSS
+# 支付宝风格CSS - 清爽白色主题
 st.markdown("""
 <style>
-    /* ========== 全局样式 - 彭博终端深色主题 ========== */
-    @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap');
+    /* ========== 全局样式 - 支付宝清爽风格 ========== */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
     .stApp {
-        background: #000000;
-        color: #FFFFFF;
-        font-family: 'Roboto Mono', monospace;
+        background: #F5F5F5;
+        color: #262626;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
     }
 
-    /* ========== 顶部状态栏 ========== */
-    .bloomberg-header {
-        background: #0a0a0a;
-        border-bottom: 2px solid #FF8C00;
-        padding: 10px 20px;
-        margin: -60px -60px 20px -60px;
+    /* ========== 顶部导航栏 ========== */
+    .alipay-header {
+        background: linear-gradient(135deg, #1677FF 0%, #4096FF 100%);
+        padding: 16px 24px;
+        margin: -60px -60px 24px -60px;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        box-shadow: 0 2px 8px rgba(22, 119, 255, 0.15);
     }
 
     .header-logo {
-        color: #FFD700;
-        font-size: 1.8em;
-        font-weight: 700;
-        letter-spacing: 2px;
+        color: #FFFFFF;
+        font-size: 1.5em;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
     }
 
     .header-time {
-        color: #FF8C00;
-        font-size: 1.2em;
-        font-weight: 500;
-        font-family: 'Roboto Mono', monospace;
+        color: #FFFFFF;
+        font-size: 0.9em;
+        font-weight: 400;
+        opacity: 0.9;
     }
 
     .header-status {
-        color: #00FF00;
-        font-size: 1em;
+        color: #FFFFFF;
+        font-size: 0.85em;
         font-weight: 500;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 12px;
     }
 
     /* ========== 主标题 ========== */
-    .terminal-title {
-        background: linear-gradient(90deg, #FF8C00 0%, #FFD700 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        font-size: 2.5em;
-        font-weight: 700;
-        text-align: center;
-        padding: 20px;
-        border: 2px solid #FF8C00;
-        border-radius: 5px;
-        margin-bottom: 20px;
-        letter-spacing: 3px;
+    .page-title {
+        color: #262626;
+        font-size: 1.8em;
+        font-weight: 600;
+        margin-bottom: 16px;
+        padding: 0;
     }
 
-    /* ========== 数据卡片 - 深色背景 ========== */
-    .terminal-card {
-        background: #0a0a0a;
-        border: 1px solid #FF8C00;
-        border-radius: 5px;
-        padding: 15px;
-        margin-bottom: 15px;
+    /* ========== 数据卡片 - 白色圆角卡片 ========== */
+    .card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 16px;
+        margin-bottom: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 1px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px rgba(0, 0, 0, 0.02);
+        transition: all 0.3s ease;
     }
 
-    .terminal-card-header {
-        color: #FFD700;
-        font-size: 0.9em;
-        font-weight: 700;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+    .card:hover {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        transform: translateY(-2px);
     }
 
-    .terminal-card-value {
-        color: #FFFFFF;
-        font-size: 2em;
-        font-weight: 700;
-        font-family: 'Roboto Mono', monospace;
-    }
-
-    .terminal-card-change-up {
-        color: #00FF00;
-        font-size: 1.2em;
-        font-weight: 700;
-    }
-
-    .terminal-card-change-down {
-        color: #FF0000;
-        font-size: 1.2em;
-        font-weight: 700;
-    }
-
-    /* ========== 交易信号卡片 ========== */
-    .signal-terminal {
-        background: #0a0a0a;
-        border: 3px solid;
-        border-radius: 5px;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 15px;
-    }
-
-    .signal-terminal-strong-buy {
-        border-color: #00FF00;
-        box-shadow: 0 0 20px rgba(0, 255, 0, 0.3);
-    }
-
-    .signal-terminal-buy {
-        border-color: #7FFF00;
-        box-shadow: 0 0 20px rgba(127, 255, 0, 0.3);
-    }
-
-    .signal-terminal-hold {
-        border-color: #FFD700;
-        box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    }
-
-    .signal-terminal-sell {
-        border-color: #FF8C00;
-        box-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
-    }
-
-    .signal-terminal-strong-sell {
-        border-color: #FF0000;
-        box-shadow: 0 0 20px rgba(255, 0, 0, 0.3);
-    }
-
-    .signal-title {
-        color: #FFD700;
-        font-size: 1em;
-        font-weight: 700;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-    }
-
-    .signal-value {
-        font-size: 2.5em;
-        font-weight: 700;
-        margin: 10px 0;
-    }
-
-    /* ========== Agent分析卡片 ========== */
-    .agent-terminal {
-        background: #0a0a0a;
-        border-left: 4px solid #FF8C00;
-        padding: 15px;
-        margin-bottom: 10px;
-    }
-
-    .agent-name {
-        color: #FFD700;
-        font-size: 1em;
-        font-weight: 700;
+    .card-header {
+        color: #8C8C8C;
+        font-size: 0.85em;
+        font-weight: 500;
         margin-bottom: 8px;
     }
 
+    .card-value {
+        color: #262626;
+        font-size: 2em;
+        font-weight: 600;
+        font-family: 'DIN Alternate', 'Helvetica Neue', Arial, sans-serif;
+        line-height: 1.2;
+    }
+
+    .card-value-large {
+        font-size: 2.5em;
+    }
+
+    /* ========== 国内股市配色: 红涨绿跌 ========== */
+    .price-up {
+        color: #FF4D4F !important;
+        font-weight: 600;
+    }
+
+    .price-down {
+        color: #52C41A !important;
+        font-weight: 600;
+    }
+
+    .price-neutral {
+        color: #8C8C8C !important;
+        font-weight: 600;
+    }
+
+    /* ========== 交易信号卡片 ========== */
+    .signal-card {
+        background: #FFFFFF;
+        border-radius: 12px;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 12px;
+        border: 2px solid;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .signal-card-strong-buy {
+        border-color: #FF4D4F;
+        background: linear-gradient(135deg, #FFF1F0 0%, #FFFFFF 100%);
+    }
+
+    .signal-card-buy {
+        border-color: #FF7875;
+        background: linear-gradient(135deg, #FFF1F0 0%, #FFFFFF 100%);
+    }
+
+    .signal-card-hold {
+        border-color: #FAAD14;
+        background: linear-gradient(135deg, #FFFBE6 0%, #FFFFFF 100%);
+    }
+
+    .signal-card-sell {
+        border-color: #73D13D;
+        background: linear-gradient(135deg, #F6FFED 0%, #FFFFFF 100%);
+    }
+
+    .signal-card-strong-sell {
+        border-color: #52C41A;
+        background: linear-gradient(135deg, #F6FFED 0%, #FFFFFF 100%);
+    }
+
+    .signal-title {
+        color: #8C8C8C;
+        font-size: 0.9em;
+        font-weight: 500;
+        margin-bottom: 8px;
+    }
+
+    .signal-value {
+        font-size: 2em;
+        font-weight: 600;
+        margin: 8px 0;
+    }
+
+    .signal-strength {
+        color: #8C8C8C;
+        font-size: 0.85em;
+        margin-top: 4px;
+    }
+
+    /* ========== Agent分析卡片 ========== */
+    .agent-card {
+        background: #FAFAFA;
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 8px;
+        border-left: 3px solid #1677FF;
+    }
+
+    .agent-name {
+        color: #262626;
+        font-size: 0.95em;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
     .agent-prediction-bull {
-        color: #00FF00;
-        font-size: 1.1em;
-        font-weight: 700;
+        color: #FF4D4F;
+        font-size: 1em;
+        font-weight: 600;
     }
 
     .agent-prediction-bear {
-        color: #FF0000;
-        font-size: 1.1em;
-        font-weight: 700;
+        color: #52C41A;
+        font-size: 1em;
+        font-weight: 600;
     }
 
     .agent-prediction-neutral {
-        color: #FFD700;
-        font-size: 1.1em;
-        font-weight: 700;
+        color: #FAAD14;
+        font-size: 1em;
+        font-weight: 600;
     }
 
     .agent-confidence {
-        color: #FF8C00;
-        font-size: 0.95em;
-        font-weight: 500;
+        color: #8C8C8C;
+        font-size: 0.85em;
+        margin-top: 4px;
     }
 
     .agent-reason {
-        color: #CCCCCC;
-        font-size: 0.9em;
-        line-height: 1.5;
-        margin-top: 8px;
-    }
-
-    /* ========== 数据表格 ========== */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        font-family: 'Roboto Mono', monospace;
-        font-size: 0.9em;
-    }
-
-    .data-table th {
-        background: #0a0a0a;
-        color: #FFD700;
-        padding: 10px;
-        text-align: left;
-        border-bottom: 2px solid #FF8C00;
-        font-weight: 700;
-        text-transform: uppercase;
-    }
-
-    .data-table td {
-        color: #FFFFFF;
-        padding: 8px 10px;
-        border-bottom: 1px solid #333333;
-    }
-
-    .data-table tr:hover {
-        background: #1a1a1a;
+        color: #595959;
+        font-size: 0.85em;
+        line-height: 1.6;
+        margin-top: 6px;
     }
 
     /* ========== 更新时间 ========== */
-    .update-time-terminal {
+    .update-time {
         text-align: center;
-        color: #FF8C00;
-        font-size: 0.95em;
-        font-weight: 500;
-        padding: 10px;
-        font-family: 'Roboto Mono', monospace;
+        color: #8C8C8C;
+        font-size: 0.85em;
+        padding: 8px;
+        margin-bottom: 16px;
     }
 
     /* ========== 按钮样式 ========== */
     .stButton>button {
-        background: #0a0a0a;
-        color: #FFD700;
-        border: 2px solid #FF8C00;
-        border-radius: 5px;
-        font-weight: 700;
-        font-family: 'Roboto Mono', monospace;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        background: #FFFFFF;
+        color: #1677FF;
+        border: 1px solid #D9D9D9;
+        border-radius: 8px;
+        font-weight: 500;
+        padding: 8px 16px;
+        transition: all 0.3s ease;
     }
 
     .stButton>button:hover {
-        background: #FF8C00;
-        color: #000000;
-        border-color: #FFD700;
+        background: #1677FF;
+        color: #FFFFFF;
+        border-color: #1677FF;
+        box-shadow: 0 2px 8px rgba(22, 119, 255, 0.2);
+    }
+
+    .stButton>button[kind="primary"] {
+        background: #1677FF;
+        color: #FFFFFF;
+        border: none;
+    }
+
+    .stButton>button[kind="primary"]:hover {
+        background: #4096FF;
+        box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);
     }
 
     /* ========== Metric组件样式 ========== */
     div[data-testid="metric-container"] {
-        background: #0a0a0a;
-        border: 1px solid #FF8C00;
-        padding: 15px;
-        border-radius: 5px;
+        background: #FFFFFF;
+        border: 1px solid #F0F0F0;
+        padding: 16px;
+        border-radius: 12px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
     }
 
     div[data-testid="metric-container"] label {
-        color: #FFD700 !important;
-        font-weight: 700 !important;
-        text-transform: uppercase;
+        color: #8C8C8C !important;
+        font-weight: 500 !important;
         font-size: 0.85em !important;
     }
 
     div[data-testid="metric-container"] [data-testid="stMetricValue"] {
-        color: #FFFFFF !important;
-        font-family: 'Roboto Mono', monospace !important;
-        font-size: 1.8em !important;
-        font-weight: 700 !important;
+        color: #262626 !important;
+        font-family: 'DIN Alternate', sans-serif !important;
+        font-size: 2em !important;
+        font-weight: 600 !important;
     }
 
     div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
-        font-family: 'Roboto Mono', monospace !important;
-        font-weight: 700 !important;
+        font-weight: 600 !important;
     }
 
     /* ========== Expander样式 ========== */
     .streamlit-expanderHeader {
-        background: #0a0a0a !important;
-        border: 1px solid #FF8C00 !important;
-        border-radius: 5px !important;
-        color: #FFD700 !important;
-        font-weight: 700 !important;
-        font-family: 'Roboto Mono', monospace !important;
+        background: #FAFAFA !important;
+        border: 1px solid #F0F0F0 !important;
+        border-radius: 8px !important;
+        color: #262626 !important;
+        font-weight: 500 !important;
+        padding: 12px 16px !important;
     }
 
     .streamlit-expanderHeader:hover {
-        background: #1a1a1a !important;
-        border-color: #FFD700 !important;
+        background: #F5F5F5 !important;
+        border-color: #D9D9D9 !important;
     }
 
     .streamlit-expanderContent {
-        background: #0a0a0a !important;
-        border: 1px solid #333333 !important;
+        background: #FFFFFF !important;
+        border: 1px solid #F0F0F0 !important;
         border-top: none !important;
+        border-radius: 0 0 8px 8px !important;
     }
 
     /* ========== 侧边栏 ========== */
     section[data-testid="stSidebar"] {
-        background: #0a0a0a;
-        border-right: 2px solid #FF8C00;
+        background: #FFFFFF;
+        border-right: 1px solid #F0F0F0;
     }
 
     section[data-testid="stSidebar"] * {
-        color: #FFFFFF !important;
+        color: #262626 !important;
     }
 
     section[data-testid="stSidebar"] .stRadio label {
-        color: #FFD700 !important;
-        font-weight: 700 !important;
+        color: #262626 !important;
+        font-weight: 500 !important;
+    }
+
+    section[data-testid="stSidebar"] h2 {
+        color: #262626 !important;
+        font-weight: 600 !important;
     }
 
     /* ========== 输入框 ========== */
     .stTextInput>div>div>input {
-        background: #0a0a0a;
-        color: #FFFFFF;
-        border: 2px solid #FF8C00;
-        font-family: 'Roboto Mono', monospace;
-        font-weight: 500;
+        background: #FFFFFF;
+        color: #262626;
+        border: 1px solid #D9D9D9;
+        border-radius: 8px;
+        font-weight: 400;
+        padding: 8px 12px;
     }
 
     .stTextInput>div>div>input:focus {
-        border-color: #FFD700;
-        box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+        border-color: #1677FF;
+        box-shadow: 0 0 0 2px rgba(22, 119, 255, 0.1);
     }
 
-    /* ========== 所有文字颜色 ========== */
+    /* ========== 标题样式 ========== */
     h1, h2, h3, h4, h5, h6 {
-        color: #FFD700 !important;
-        font-family: 'Roboto Mono', monospace !important;
-        font-weight: 700 !important;
+        color: #262626 !important;
+        font-weight: 600 !important;
     }
 
+    h3 {
+        font-size: 1.3em !important;
+        margin-top: 24px !important;
+        margin-bottom: 16px !important;
+    }
+
+    /* ========== 文字颜色 ========== */
     p, li, span, div {
-        color: #FFFFFF !important;
+        color: #262626 !important;
     }
 
     .stMarkdown {
-        color: #FFFFFF !important;
+        color: #262626 !important;
     }
 
     /* ========== 分隔线 ========== */
     hr {
-        border-color: #FF8C00 !important;
-        opacity: 0.5;
+        border-color: #F0F0F0 !important;
+        opacity: 1;
+        margin: 24px 0;
     }
 
     /* ========== 滚动条 ========== */
     ::-webkit-scrollbar {
-        width: 10px;
-        height: 10px;
+        width: 8px;
+        height: 8px;
     }
 
     ::-webkit-scrollbar-track {
-        background: #0a0a0a;
+        background: #F5F5F5;
     }
 
     ::-webkit-scrollbar-thumb {
-        background: #FF8C00;
-        border-radius: 5px;
+        background: #D9D9D9;
+        border-radius: 4px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-        background: #FFD700;
+        background: #BFBFBF;
     }
 
-    /* ========== 实时闪烁效果 ========== */
-    @keyframes blink {
-        0%, 100% { opacity: 1; }
-        50% { opacity: 0.5; }
+    /* ========== 图标样式 ========== */
+    .icon-up {
+        color: #FF4D4F;
     }
 
-    .blink {
-        animation: blink 1s ease-in-out infinite;
+    .icon-down {
+        color: #52C41A;
     }
 
-    /* ========== 数据高亮 ========== */
-    .highlight-up {
-        color: #00FF00 !important;
-        font-weight: 700;
+    .icon-neutral {
+        color: #FAAD14;
     }
 
-    .highlight-down {
-        color: #FF0000 !important;
-        font-weight: 700;
+    /* ========== 徽章样式 ========== */
+    .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.75em;
+        font-weight: 500;
     }
 
-    .highlight-neutral {
-        color: #FFD700 !important;
-        font-weight: 700;
+    .badge-up {
+        background: #FFF1F0;
+        color: #FF4D4F;
+    }
+
+    .badge-down {
+        background: #F6FFED;
+        color: #52C41A;
+    }
+
+    /* ========== 响应式设计 ========== */
+    @media (max-width: 768px) {
+        .card-value {
+            font-size: 1.5em;
+        }
+
+        .signal-value {
+            font-size: 1.5em;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
-# 顶部状态栏 - 彭博终端风格
+# 顶部导航栏 - 支付宝风格
 beijing_time = get_beijing_time()
 st.markdown(f"""
-<div class="bloomberg-header">
-    <div class="header-logo">彭博终端</div>
-    <div class="header-time">北京时间 {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>
-    <div class="header-status">● 实时市场数据</div>
+<div class="alipay-header">
+    <div class="header-logo">💰 AI智投</div>
+    <div class="header-time">{beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>
+    <div class="header-status">● 实时数据</div>
 </div>
 """, unsafe_allow_html=True)
 
 # 侧边栏 - 功能选择
-st.sidebar.markdown("## 📊 终端菜单")
+st.sidebar.markdown("## 功能菜单")
 page = st.sidebar.radio(
     "选择功能",
     ["💰 黄金价格预测", "📈 A股价格预测", "📖 关于系统"],
@@ -670,7 +701,7 @@ if page == "💰 黄金价格预测":
     # 标题和刷新按钮
     col_title, col_refresh = st.columns([5, 1])
     with col_title:
-        st.markdown('<div class="terminal-title">黄金价格预测</div>', unsafe_allow_html=True)
+        st.markdown('<div class="page-title">💰 黄金价格预测</div>', unsafe_allow_html=True)
     with col_refresh:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 刷新", use_container_width=True):
@@ -684,38 +715,39 @@ if page == "💰 黄金价格预测":
         current_price = gold_data['price']
 
         # 显示更新时间
-        st.markdown(f'<div class="update-time-terminal">📡 更新时间: {gold_data["update_time"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="update-time">📡 数据更新: {gold_data["update_time"]}</div>', unsafe_allow_html=True)
 
         # 显示当前金价 - 4列网格布局
         col1, col2, col3, col4 = st.columns(4)
         with col1:
-            change_class = "highlight-up" if gold_data['change_pct'] >= 0 else "highlight-down"
+            change_class = "price-up" if gold_data['change_pct'] >= 0 else "price-down"
+            change_icon = "📈" if gold_data['change_pct'] >= 0 else "📉"
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">现货黄金 (美元/盎司)</div>
-                <div class="terminal-card-value">${current_price:.2f}</div>
-                <div class="{change_class}">{gold_data['change_pct']:+.2f}%</div>
+            <div class="card">
+                <div class="card-header">现货黄金 (美元/盎司)</div>
+                <div class="card-value card-value-large">${current_price:.2f}</div>
+                <div class="{change_class}" style="font-size: 1.1em; margin-top: 4px;">{change_icon} {gold_data['change_pct']:+.2f}%</div>
             </div>
             """, unsafe_allow_html=True)
         with col2:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">24小时最高</div>
-                <div class="terminal-card-value">${gold_data['high']:.2f}</div>
+            <div class="card">
+                <div class="card-header">24小时最高</div>
+                <div class="card-value">${gold_data['high']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
         with col3:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">24小时最低</div>
-                <div class="terminal-card-value">${gold_data['low']:.2f}</div>
+            <div class="card">
+                <div class="card-header">24小时最低</div>
+                <div class="card-value">${gold_data['low']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
         with col4:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">24小时成交量</div>
-                <div class="terminal-card-value">{gold_data['volume']:.0f}</div>
+            <div class="card">
+                <div class="card-header">24小时成交量</div>
+                <div class="card-value" style="font-size: 1.5em;">{gold_data['volume']:.0f}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -733,40 +765,44 @@ if page == "💰 黄金价格预测":
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            change_class = "highlight-up" if prediction['predicted_change'] >= 0 else "highlight-down"
+            change_class = "price-up" if prediction['predicted_change'] >= 0 else "price-down"
+            change_icon = "📈" if prediction['predicted_change'] >= 0 else "📉"
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">预测价格 (明日)</div>
-                <div class="terminal-card-value">${prediction['predicted_price']:.2f}</div>
-                <div class="{change_class}">{prediction['predicted_change']:+.2f}%</div>
+            <div class="card">
+                <div class="card-header">预测价格 (明日)</div>
+                <div class="card-value card-value-large">${prediction['predicted_price']:.2f}</div>
+                <div class="{change_class}" style="font-size: 1.1em; margin-top: 4px;">{change_icon} {prediction['predicted_change']:+.2f}%</div>
             </div>
             """, unsafe_allow_html=True)
 
         with col2:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">置信度</div>
-                <div class="terminal-card-value">{prediction['avg_confidence']*100:.1f}%</div>
-                <div style="color: #FF8C00; font-size: 0.9em;">基于 {prediction['bullish_count']} 个看涨信号</div>
+            <div class="card">
+                <div class="card-header">AI置信度</div>
+                <div class="card-value">{prediction['avg_confidence']*100:.1f}%</div>
+                <div style="color: #8C8C8C; font-size: 0.85em; margin-top: 4px;">基于 {prediction['bullish_count']} 个看涨信号</div>
             </div>
             """, unsafe_allow_html=True)
 
         with col3:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">AI共识</div>
-                <div style="color: #00FF00; font-size: 1.2em; margin: 5px 0;">▲ 看涨: {prediction['bullish_count']}</div>
-                <div style="color: #FFD700; font-size: 1.2em; margin: 5px 0;">● 中性: {prediction['neutral_count']}</div>
-                <div style="color: #FF0000; font-size: 1.2em; margin: 5px 0;">▼ 看跌: {prediction['bearish_count']}</div>
+            <div class="card">
+                <div class="card-header">AI共识分布</div>
+                <div style="margin-top: 8px;">
+                    <div style="color: #FF4D4F; font-size: 1em; margin: 4px 0; font-weight: 600;">▲ 看涨: {prediction['bullish_count']}</div>
+                    <div style="color: #FAAD14; font-size: 1em; margin: 4px 0; font-weight: 600;">● 中性: {prediction['neutral_count']}</div>
+                    <div style="color: #52C41A; font-size: 1em; margin: 4px 0; font-weight: 600;">▼ 看跌: {prediction['bearish_count']}</div>
+                </div>
             </div>
             """, unsafe_allow_html=True)
 
         with col4:
+            signal_color = "#FF4D4F" if "买入" in signal['type'] else "#52C41A" if "卖出" in signal['type'] else "#FAAD14"
             st.markdown(f"""
-            <div class="signal-terminal signal-terminal-{signal['class'].replace('signal-', '')}">
+            <div class="signal-card signal-card-{signal['class'].replace('signal-', '')}">
                 <div class="signal-title">交易信号</div>
-                <div class="signal-value">{signal['emoji']} {signal['type']}</div>
-                <div style="color: #FF8C00; font-size: 0.95em;">强度: {signal['strength']}/100</div>
+                <div class="signal-value" style="color: {signal_color};">{signal['emoji']} {signal['type']}</div>
+                <div class="signal-strength">信号强度: {signal['strength']}/100</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -778,25 +814,25 @@ if page == "💰 黄金价格预测":
 
         with col1:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">📊 仓位建议</div>
-                <div style="color: #FFFFFF; font-size: 1.2em; margin-top: 10px;">{signal['position_advice']}</div>
+            <div class="card">
+                <div class="card-header">📊 仓位建议</div>
+                <div style="color: #262626; font-size: 1.1em; margin-top: 10px; font-weight: 500;">{signal['position_advice']}</div>
             </div>
             """, unsafe_allow_html=True)
 
         with col2:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">🛡️ 止损价</div>
-                <div style="color: #FF0000; font-size: 1.5em; margin-top: 10px;">${signal['stop_loss']:.2f}</div>
+            <div class="card">
+                <div class="card-header">🛡️ 止损价位</div>
+                <div style="color: #52C41A; font-size: 1.8em; margin-top: 10px; font-weight: 600;">${signal['stop_loss']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
 
         with col3:
             st.markdown(f"""
-            <div class="terminal-card">
-                <div class="terminal-card-header">🎯 止盈价</div>
-                <div style="color: #00FF00; font-size: 1.5em; margin-top: 10px;">${signal['take_profit']:.2f}</div>
+            <div class="card">
+                <div class="card-header">🎯 止盈价位</div>
+                <div style="color: #FF4D4F; font-size: 1.8em; margin-top: 10px; font-weight: 600;">${signal['take_profit']:.2f}</div>
             </div>
             """, unsafe_allow_html=True)
 
@@ -810,15 +846,15 @@ if page == "💰 黄金价格预测":
         for idx, agent in enumerate(prediction['agents']):
             with cols[idx % 3]:
                 pred_class = "agent-prediction-bull" if agent['prediction'] == '看涨' else "agent-prediction-bear" if agent['prediction'] == '看跌' else "agent-prediction-neutral"
-                emoji = "▲" if agent['prediction'] == '看涨' else "▼" if agent['prediction'] == '看跌' else "●"
+                emoji = "📈" if agent['prediction'] == '看涨' else "📉" if agent['prediction'] == '看跌' else "➖"
 
                 with st.expander(f"{emoji} {agent['name']} - {agent['prediction']} ({agent['confidence']*100:.1f}%)", expanded=False):
                     st.markdown(f"""
-                    <div class="agent-terminal">
+                    <div class="agent-card">
                         <div class="agent-name">{agent['name']}</div>
                         <div class="{pred_class}">预测: {agent['prediction']}</div>
                         <div class="agent-confidence">置信度: {agent['confidence']*100:.1f}%</div>
-                        <div class="agent-reason">理由: {agent['reason']}</div>
+                        <div class="agent-reason">{agent['reason']}</div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -835,31 +871,31 @@ if page == "💰 黄金价格预测":
             low=df['low'],
             close=df['close'],
             name='黄金价格',
-            increasing_line_color='#00FF00',
-            decreasing_line_color='#FF0000',
-            increasing_fillcolor='#00FF00',
-            decreasing_fillcolor='#FF0000'
+            increasing_line_color='#FF4D4F',  # 红涨
+            decreasing_line_color='#52C41A',  # 绿跌
+            increasing_fillcolor='#FF4D4F',
+            decreasing_fillcolor='#52C41A'
         )])
 
         fig.update_layout(
             title='黄金价格走势 (美元/盎司)',
             yaxis_title='价格',
-            template='plotly_dark',
+            template='plotly_white',
             height=500,
             xaxis_rangeslider_visible=False,
-            paper_bgcolor='#0a0a0a',
-            plot_bgcolor='#000000',
-            font=dict(color='#FFD700', family='Roboto Mono', size=12),
-            title_font=dict(color='#FFD700', size=16, family='Roboto Mono'),
+            paper_bgcolor='#FFFFFF',
+            plot_bgcolor='#FAFAFA',
+            font=dict(color='#262626', family='PingFang SC, Microsoft YaHei', size=12),
+            title_font=dict(color='#262626', size=16, family='PingFang SC, Microsoft YaHei', weight=600),
             xaxis=dict(
-                gridcolor='#333333',
+                gridcolor='#F0F0F0',
                 showgrid=True,
-                color='#FF8C00'
+                color='#8C8C8C'
             ),
             yaxis=dict(
-                gridcolor='#333333',
+                gridcolor='#F0F0F0',
                 showgrid=True,
-                color='#FF8C00'
+                color='#8C8C8C'
             )
         )
 
@@ -876,7 +912,7 @@ elif page == "📈 A股价格预测":
     # 标题和刷新按钮
     col_title, col_refresh = st.columns([5, 1])
     with col_title:
-        st.markdown('<div class="terminal-title">A股价格预测</div>', unsafe_allow_html=True)
+        st.markdown('<div class="page-title">📈 A股价格预测</div>', unsafe_allow_html=True)
     with col_refresh:
         st.markdown("<br>", unsafe_allow_html=True)
         if st.button("🔄 刷新", use_container_width=True, key="refresh_astock"):
@@ -922,38 +958,39 @@ elif page == "📈 A股价格预测":
                     st.success(f"✅ 分析完成！{stock_data['name']} ({stock_code})")
 
                     # 显示更新时间
-                    st.markdown(f'<div class="update-time-terminal">📡 更新时间: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div class="update-time">📡 数据更新: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>', unsafe_allow_html=True)
 
                     # 显示当前股价 - 4列网格
                     col1, col2, col3, col4 = st.columns(4)
                     with col1:
-                        change_class = "highlight-up" if stock_data['change_pct'] >= 0 else "highlight-down"
+                        change_class = "price-up" if stock_data['change_pct'] >= 0 else "price-down"
+                        change_icon = "📈" if stock_data['change_pct'] >= 0 else "📉"
                         st.markdown(f"""
-                        <div class="terminal-card">
-                            <div class="terminal-card-header">当前价格 (人民币)</div>
-                            <div class="terminal-card-value">¥{stock_data['price']:.2f}</div>
-                            <div class="{change_class}">{stock_data['change_pct']:+.2f}%</div>
+                        <div class="card">
+                            <div class="card-header">当前价格 (人民币)</div>
+                            <div class="card-value card-value-large">¥{stock_data['price']:.2f}</div>
+                            <div class="{change_class}" style="font-size: 1.1em; margin-top: 4px;">{change_icon} {stock_data['change_pct']:+.2f}%</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with col2:
                         st.markdown(f"""
-                        <div class="terminal-card">
-                            <div class="terminal-card-header">今日最高</div>
-                            <div class="terminal-card-value">¥{stock_data['high']:.2f}</div>
+                        <div class="card">
+                            <div class="card-header">今日最高</div>
+                            <div class="card-value">¥{stock_data['high']:.2f}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with col3:
                         st.markdown(f"""
-                        <div class="terminal-card">
-                            <div class="terminal-card-header">今日最低</div>
-                            <div class="terminal-card-value">¥{stock_data['low']:.2f}</div>
+                        <div class="card">
+                            <div class="card-header">今日最低</div>
+                            <div class="card-value">¥{stock_data['low']:.2f}</div>
                         </div>
                         """, unsafe_allow_html=True)
                     with col4:
                         st.markdown(f"""
-                        <div class="terminal-card">
-                            <div class="terminal-card-header">成交量</div>
-                            <div class="terminal-card-value">{stock_data['volume']:.0f}</div>
+                        <div class="card">
+                            <div class="card-header">成交量</div>
+                            <div class="card-value" style="font-size: 1.5em;">{stock_data['volume']:.0f}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -983,38 +1020,39 @@ elif page == "📈 A股价格预测":
                 st.success(f"✅ 分析完成！股票代码: {stock_code}")
 
                 # 显示更新时间
-                st.markdown(f'<div class="update-time-terminal">📡 更新时间: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>', unsafe_allow_html=True)
+                st.markdown(f'<div class="update-time">📡 数据更新: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</div>', unsafe_allow_html=True)
 
                 # 显示当前股价 - 4列网格
                 col1, col2, col3, col4 = st.columns(4)
                 with col1:
-                    change_class = "highlight-up" if change_pct >= 0 else "highlight-down"
+                    change_class = "price-up" if change_pct >= 0 else "price-down"
+                    change_icon = "📈" if change_pct >= 0 else "📉"
                     st.markdown(f"""
-                    <div class="terminal-card">
-                        <div class="terminal-card-header">当前价格 (人民币)</div>
-                        <div class="terminal-card-value">¥{current_price:.2f}</div>
-                        <div class="{change_class}">{change_pct:+.2f}%</div>
+                    <div class="card">
+                        <div class="card-header">当前价格 (人民币)</div>
+                        <div class="card-value card-value-large">¥{current_price:.2f}</div>
+                        <div class="{change_class}" style="font-size: 1.1em; margin-top: 4px;">{change_icon} {change_pct:+.2f}%</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col2:
                     st.markdown(f"""
-                    <div class="terminal-card">
-                        <div class="terminal-card-header">今日最高</div>
-                        <div class="terminal-card-value">¥{current_price * 1.02:.2f}</div>
+                    <div class="card">
+                        <div class="card-header">今日最高</div>
+                        <div class="card-value">¥{current_price * 1.02:.2f}</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col3:
                     st.markdown(f"""
-                    <div class="terminal-card">
-                        <div class="terminal-card-header">今日最低</div>
-                        <div class="terminal-card-value">¥{current_price * 0.98:.2f}</div>
+                    <div class="card">
+                        <div class="card-header">今日最低</div>
+                        <div class="card-value">¥{current_price * 0.98:.2f}</div>
                     </div>
                     """, unsafe_allow_html=True)
                 with col4:
                     st.markdown(f"""
-                    <div class="terminal-card">
-                        <div class="terminal-card-header">成交量</div>
-                        <div class="terminal-card-value">{np.random.randint(1000, 50000)}万手</div>
+                    <div class="card">
+                        <div class="card-header">成交量</div>
+                        <div class="card-value" style="font-size: 1.3em;">{np.random.randint(1000, 50000)}万手</div>
                     </div>
                     """, unsafe_allow_html=True)
 
@@ -1030,40 +1068,44 @@ elif page == "📈 A股价格预测":
             col1, col2, col3, col4 = st.columns(4)
 
             with col1:
-                change_class = "highlight-up" if prediction['predicted_change'] >= 0 else "highlight-down"
+                change_class = "price-up" if prediction['predicted_change'] >= 0 else "price-down"
+                change_icon = "📈" if prediction['predicted_change'] >= 0 else "📉"
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">预测价格 (明日)</div>
-                    <div class="terminal-card-value">¥{prediction['predicted_price']:.2f}</div>
-                    <div class="{change_class}">{prediction['predicted_change']:+.2f}%</div>
+                <div class="card">
+                    <div class="card-header">预测价格 (明日)</div>
+                    <div class="card-value card-value-large">¥{prediction['predicted_price']:.2f}</div>
+                    <div class="{change_class}" style="font-size: 1.1em; margin-top: 4px;">{change_icon} {prediction['predicted_change']:+.2f}%</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col2:
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">置信度</div>
-                    <div class="terminal-card-value">{prediction['avg_confidence']*100:.1f}%</div>
-                    <div style="color: #FF8C00; font-size: 0.9em;">基于 {prediction['bullish_count']} 个看涨信号</div>
+                <div class="card">
+                    <div class="card-header">AI置信度</div>
+                    <div class="card-value">{prediction['avg_confidence']*100:.1f}%</div>
+                    <div style="color: #8C8C8C; font-size: 0.85em; margin-top: 4px;">基于 {prediction['bullish_count']} 个看涨信号</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col3:
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">AI共识</div>
-                    <div style="color: #00FF00; font-size: 1.2em; margin: 5px 0;">▲ 看涨: {prediction['bullish_count']}</div>
-                    <div style="color: #FFD700; font-size: 1.2em; margin: 5px 0;">● 中性: {prediction['neutral_count']}</div>
-                    <div style="color: #FF0000; font-size: 1.2em; margin: 5px 0;">▼ 看跌: {prediction['bearish_count']}</div>
+                <div class="card">
+                    <div class="card-header">AI共识分布</div>
+                    <div style="margin-top: 8px;">
+                        <div style="color: #FF4D4F; font-size: 1em; margin: 4px 0; font-weight: 600;">▲ 看涨: {prediction['bullish_count']}</div>
+                        <div style="color: #FAAD14; font-size: 1em; margin: 4px 0; font-weight: 600;">● 中性: {prediction['neutral_count']}</div>
+                        <div style="color: #52C41A; font-size: 1em; margin: 4px 0; font-weight: 600;">▼ 看跌: {prediction['bearish_count']}</div>
+                    </div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col4:
+                signal_color = "#FF4D4F" if "买入" in signal['type'] else "#52C41A" if "卖出" in signal['type'] else "#FAAD14"
                 st.markdown(f"""
-                <div class="signal-terminal signal-terminal-{signal['class'].replace('signal-', '')}">
+                <div class="signal-card signal-card-{signal['class'].replace('signal-', '')}">
                     <div class="signal-title">交易信号</div>
-                    <div class="signal-value">{signal['emoji']} {signal['type']}</div>
-                    <div style="color: #FF8C00; font-size: 0.95em;">强度: {signal['strength']}/100</div>
+                    <div class="signal-value" style="color: {signal_color};">{signal['emoji']} {signal['type']}</div>
+                    <div class="signal-strength">信号强度: {signal['strength']}/100</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1075,25 +1117,25 @@ elif page == "📈 A股价格预测":
 
             with col1:
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">📊 仓位建议</div>
-                    <div style="color: #FFFFFF; font-size: 1.2em; margin-top: 10px;">{signal['position_advice']}</div>
+                <div class="card">
+                    <div class="card-header">📊 仓位建议</div>
+                    <div style="color: #262626; font-size: 1.1em; margin-top: 10px; font-weight: 500;">{signal['position_advice']}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col2:
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">🛡️ 止损价</div>
-                    <div style="color: #FF0000; font-size: 1.5em; margin-top: 10px;">¥{signal['stop_loss']:.2f}</div>
+                <div class="card">
+                    <div class="card-header">🛡️ 止损价位</div>
+                    <div style="color: #52C41A; font-size: 1.8em; margin-top: 10px; font-weight: 600;">¥{signal['stop_loss']:.2f}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
             with col3:
                 st.markdown(f"""
-                <div class="terminal-card">
-                    <div class="terminal-card-header">🎯 止盈价</div>
-                    <div style="color: #00FF00; font-size: 1.5em; margin-top: 10px;">¥{signal['take_profit']:.2f}</div>
+                <div class="card">
+                    <div class="card-header">🎯 止盈价位</div>
+                    <div style="color: #FF4D4F; font-size: 1.8em; margin-top: 10px; font-weight: 600;">¥{signal['take_profit']:.2f}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -1112,15 +1154,15 @@ elif page == "📈 A股价格预测":
                     agent_reason = agent.get('reason')
 
                     pred_class = "agent-prediction-bull" if agent_pred == '看涨' else "agent-prediction-bear" if agent_pred == '看跌' else "agent-prediction-neutral"
-                    emoji = "▲" if agent_pred == '看涨' else "▼" if agent_pred == '看跌' else "●"
+                    emoji = "📈" if agent_pred == '看涨' else "📉" if agent_pred == '看跌' else "➖"
 
                     with st.expander(f"{emoji} {agent_name} - {agent_pred} ({agent_conf*100:.1f}%)", expanded=False):
                         st.markdown(f"""
-                        <div class="agent-terminal">
+                        <div class="agent-card">
                             <div class="agent-name">{agent_name}</div>
                             <div class="{pred_class}">预测: {agent_pred}</div>
                             <div class="agent-confidence">置信度: {agent_conf*100:.1f}%</div>
-                            <div class="agent-reason">理由: {agent_reason}</div>
+                            <div class="agent-reason">{agent_reason}</div>
                         </div>
                         """, unsafe_allow_html=True)
 
@@ -1129,16 +1171,16 @@ elif page == "📈 A股价格预测":
 
 # ==================== 关于系统页面 ====================
 elif page == "📖 关于系统":
-    st.markdown('<div class="terminal-title">系统信息</div>', unsafe_allow_html=True)
+    st.markdown('<div class="page-title">📖 关于系统</div>', unsafe_allow_html=True)
 
     # 系统简介
     st.markdown("""
-    <div class="terminal-card">
-        <div class="terminal-card-header">🎯 系统概述</div>
-        <p style="color: #FFFFFF; font-size: 1.05em; line-height: 1.8; margin-top: 15px;">
-            基于<span style="color: #FF8C00; font-weight: 700;">15个AI智能体协同分析</span>的投资预测系统，
+    <div class="card">
+        <div class="card-header" style="font-size: 1em; margin-bottom: 12px;">🎯 系统概述</div>
+        <p style="color: #595959; font-size: 1em; line-height: 1.8; margin-top: 8px;">
+            基于<span style="color: #1677FF; font-weight: 600;">15个AI智能体协同分析</span>的投资预测系统，
             整合宏观经济、技术面、资金流向、机器学习等多维度分析，
-            为投资者提供<span style="color: #FFD700; font-weight: 700;">专业实时</span>的决策参考。
+            为投资者提供<span style="color: #1677FF; font-weight: 600;">专业实时</span>的决策参考。
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1150,9 +1192,9 @@ elif page == "📖 关于系统":
 
     with col1:
         st.markdown("""
-        <div class="terminal-card">
-            <div class="terminal-card-header">💰 黄金价格预测</div>
-            <ul style="color: #FFFFFF; line-height: 2; margin-top: 15px;">
+        <div class="card">
+            <div class="card-header" style="font-size: 1em; margin-bottom: 12px;">💰 黄金价格预测</div>
+            <ul style="color: #595959; line-height: 2; margin-top: 8px; padding-left: 20px;">
                 <li>实时国际黄金价格</li>
                 <li>15个AI智能体分析</li>
                 <li>明日价格预测</li>
@@ -1164,9 +1206,9 @@ elif page == "📖 关于系统":
 
     with col2:
         st.markdown("""
-        <div class="terminal-card">
-            <div class="terminal-card-header">📈 A股价格预测</div>
-            <ul style="color: #FFFFFF; line-height: 2; margin-top: 15px;">
+        <div class="card">
+            <div class="card-header" style="font-size: 1em; margin-bottom: 12px;">📈 A股价格预测</div>
+            <ul style="color: #595959; line-height: 2; margin-top: 8px; padding-left: 20px;">
                 <li>沪深A股全市场</li>
                 <li>实时股票行情</li>
                 <li>AI协同预测</li>
@@ -1180,8 +1222,8 @@ elif page == "📖 关于系统":
 
     # 交易信号说明
     st.markdown("""
-    <div class="terminal-card">
-        <div class="terminal-card-header">🎯 交易信号</div>
+    <div class="card">
+        <div class="card-header" style="font-size: 1em; margin-bottom: 12px;">🎯 交易信号说明</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -1189,41 +1231,46 @@ elif page == "📖 关于系统":
 
     with col1:
         st.markdown("""
-        <div class="signal-terminal signal-terminal-strong-buy">
-            <div class="signal-title">▲ 强烈买入</div>
-            <p style="font-size: 0.85em; margin-top: 10px;">预测涨幅 > 1.5%<br>置信度 > 75%</p>
+        <div class="signal-card signal-card-strong-buy">
+            <div class="signal-title">强烈买入</div>
+            <div style="font-size: 2em; margin: 8px 0;">📈</div>
+            <p style="font-size: 0.85em; color: #8C8C8C; margin-top: 8px;">预测涨幅 > 1.5%<br>置信度 > 75%</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col2:
         st.markdown("""
-        <div class="signal-terminal signal-terminal-buy">
-            <div class="signal-title">▲ 买入</div>
-            <p style="font-size: 0.85em; margin-top: 10px;">预测涨幅 > 0.5%<br>置信度 > 65%</p>
+        <div class="signal-card signal-card-buy">
+            <div class="signal-title">买入</div>
+            <div style="font-size: 2em; margin: 8px 0;">📈</div>
+            <p style="font-size: 0.85em; color: #8C8C8C; margin-top: 8px;">预测涨幅 > 0.5%<br>置信度 > 65%</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col3:
         st.markdown("""
-        <div class="signal-terminal signal-terminal-hold">
-            <div class="signal-title">● 观望</div>
-            <p style="font-size: 0.85em; margin-top: 10px;">预测涨跌幅 ≤ 0.5%<br>信号不明确</p>
+        <div class="signal-card signal-card-hold">
+            <div class="signal-title">观望</div>
+            <div style="font-size: 2em; margin: 8px 0;">➖</div>
+            <p style="font-size: 0.85em; color: #8C8C8C; margin-top: 8px;">预测涨跌幅 ≤ 0.5%<br>信号不明确</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col4:
         st.markdown("""
-        <div class="signal-terminal signal-terminal-sell">
-            <div class="signal-title">▼ 卖出</div>
-            <p style="font-size: 0.85em; margin-top: 10px;">预测跌幅 > 0.5%<br>置信度 > 65%</p>
+        <div class="signal-card signal-card-sell">
+            <div class="signal-title">卖出</div>
+            <div style="font-size: 2em; margin: 8px 0;">📉</div>
+            <p style="font-size: 0.85em; color: #8C8C8C; margin-top: 8px;">预测跌幅 > 0.5%<br>置信度 > 65%</p>
         </div>
         """, unsafe_allow_html=True)
 
     with col5:
         st.markdown("""
-        <div class="signal-terminal signal-terminal-strong-sell">
-            <div class="signal-title">▼ 强烈卖出</div>
-            <p style="font-size: 0.85em; margin-top: 10px;">预测跌幅较大<br>风险信号明显</p>
+        <div class="signal-card signal-card-strong-sell">
+            <div class="signal-title">强烈卖出</div>
+            <div style="font-size: 2em; margin: 8px 0;">📉</div>
+            <p style="font-size: 0.85em; color: #8C8C8C; margin-top: 8px;">预测跌幅较大<br>风险信号明显</p>
         </div>
         """, unsafe_allow_html=True)
 
@@ -1231,13 +1278,13 @@ elif page == "📖 关于系统":
 
     # 风险提示
     st.markdown("""
-    <div class="terminal-card" style="border: 2px solid #FF0000;">
-        <div class="terminal-card-header" style="color: #FF0000;">⚠️ 风险提示</div>
-        <div style="color: #FFFFFF; font-size: 1.05em; line-height: 2; margin-top: 15px;">
-            <p>1. 预测结果<span style="color: #FF8C00; font-weight: 700;">仅供参考</span>，不构成投资建议</p>
-            <p>2. 金融市场存在<span style="color: #FF8C00; font-weight: 700;">不可预测风险</span></p>
-            <p>3. 应根据<span style="color: #FF8C00; font-weight: 700;">自身风险承受能力</span>独立判断</p>
-            <p>4. <span style="color: #FF0000; font-weight: 700;">投资有风险，入市需谨慎</span></p>
+    <div class="card" style="border: 2px solid #FF4D4F; background: linear-gradient(135deg, #FFF1F0 0%, #FFFFFF 100%);">
+        <div class="card-header" style="color: #FF4D4F; font-size: 1em; margin-bottom: 12px;">⚠️ 风险提示</div>
+        <div style="color: #595959; font-size: 0.95em; line-height: 2; margin-top: 8px;">
+            <p>1. 预测结果<span style="color: #FF4D4F; font-weight: 600;">仅供参考</span>，不构成投资建议</p>
+            <p>2. 金融市场存在<span style="color: #FF4D4F; font-weight: 600;">不可预测风险</span></p>
+            <p>3. 应根据<span style="color: #FF4D4F; font-weight: 600;">自身风险承受能力</span>独立判断</p>
+            <p>4. <span style="color: #FF4D4F; font-weight: 600;">投资有风险，入市需谨慎</span></p>
         </div>
     </div>
     """, unsafe_allow_html=True)
@@ -1247,14 +1294,14 @@ elif page == "📖 关于系统":
     # 技术支持
     beijing_time = get_beijing_time()
     st.markdown(f"""
-    <div class="terminal-card">
-        <div class="terminal-card-header">💬 技术信息</div>
-        <p style="color: #FFFFFF; font-size: 1.05em; line-height: 2; margin-top: 15px;">
-            <span style="color: #FFD700;">数据来源:</span> OKX (黄金) + AKShare (A股)<br>
-            <span style="color: #FFD700;">AI技术:</span> 多智能体协同 + 机器学习<br>
-            <span style="color: #FFD700;">更新频率:</span> 实时数据，60秒缓存<br>
-            <span style="color: #FFD700;">系统版本:</span> v3.0<br>
-            <span style="color: #FFD700;">更新时间:</span> {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}
+    <div class="card">
+        <div class="card-header" style="font-size: 1em; margin-bottom: 12px;">💬 技术信息</div>
+        <p style="color: #595959; font-size: 0.95em; line-height: 2; margin-top: 8px;">
+            <span style="color: #262626; font-weight: 600;">数据来源:</span> OKX (黄金) + AKShare (A股)<br>
+            <span style="color: #262626; font-weight: 600;">AI技术:</span> 多智能体协同 + 机器学习<br>
+            <span style="color: #262626; font-weight: 600;">更新频率:</span> 实时数据，60秒缓存<br>
+            <span style="color: #262626; font-weight: 600;">系统版本:</span> v4.0 支付宝风格<br>
+            <span style="color: #262626; font-weight: 600;">更新时间:</span> {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}
         </p>
     </div>
     """, unsafe_allow_html=True)
@@ -1263,10 +1310,10 @@ elif page == "📖 关于系统":
 st.markdown("---")
 beijing_time = get_beijing_time()
 st.markdown(f"""
-<div style='text-align: center; padding: 30px;'>
-    <p style="font-size: 1.3em; color: #FFD700; font-weight: 700; letter-spacing: 2px;">彭博终端风格 - AI投资预测系统 v3.0</p>
-    <p style="color: #FF8C00; margin-top: 10px;">基于15个AI智能体协同分析 | 数据来源: OKX + AKShare</p>
-    <p style="color: #FF0000; font-size: 1.05em; margin-top: 15px; font-weight: 700;">⚠️ 仅供参考，不构成投资建议。投资有风险，入市需谨慎。</p>
-    <p style="color: #888888; font-size: 0.9em; margin-top: 10px;">© 2026 AI投资预测系统 | 更新时间: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</p>
+<div style='text-align: center; padding: 24px; background: #FFFFFF; border-radius: 12px; margin-top: 24px;'>
+    <p style="font-size: 1.2em; color: #262626; font-weight: 600;">💰 AI智投 - 黄金与A股预测系统 v4.0</p>
+    <p style="color: #8C8C8C; margin-top: 8px; font-size: 0.9em;">基于15个AI智能体协同分析 | 数据来源: OKX + AKShare</p>
+    <p style="color: #FF4D4F; font-size: 0.95em; margin-top: 12px; font-weight: 500;">⚠️ 仅供参考，不构成投资建议。投资有风险，入市需谨慎。</p>
+    <p style="color: #BFBFBF; font-size: 0.85em; margin-top: 8px;">© 2026 AI智投系统 | 更新时间: {beijing_time.strftime("%Y-%m-%d %H:%M:%S")}</p>
 </div>
 """, unsafe_allow_html=True)
