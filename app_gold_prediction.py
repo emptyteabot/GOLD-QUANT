@@ -9,12 +9,20 @@ import plotly.graph_objects as go
 from datetime import datetime, timedelta
 import requests
 import os
+import sys
 
 # 加载环境变量
 try:
     import config_defaults
 except:
     pass
+
+# 导入A股预测引擎
+try:
+    from astock_predictor import AStockPredictor
+    ASTOCK_AVAILABLE = True
+except:
+    ASTOCK_AVAILABLE = False
 
 st.set_page_config(
     page_title="黄金价格预测系统",
@@ -289,30 +297,62 @@ elif page == "📈 A股价格预测":
 
     if predict_btn and stock_code:
         with st.spinner(f"🤖 15个AI智能体正在分析 {stock_code}..."):
-            import time
-            time.sleep(2)  # 模拟分析过程
+            # 使用真实的A股预测引擎
+            if ASTOCK_AVAILABLE:
+                predictor = AStockPredictor()
+                result = predictor.predict(stock_code)
 
-            # 模拟股票数据
-            current_price = np.random.uniform(10, 200)
-            change_pct = np.random.uniform(-3, 3)
+                if result:
+                    stock_data = result['stock_data']
+                    st.success(f"✅ 分析完成！{stock_data['name']} ({stock_code})")
 
-            st.success(f"✅ 分析完成！股票代码: {stock_code}")
+                    # 显示当前股价
+                    col1, col2, col3, col4 = st.columns(4)
+                    with col1:
+                        st.metric("当前股价", f"¥{stock_data['price']:.2f}", f"{stock_data['change_pct']:+.2f}%")
+                    with col2:
+                        st.metric("今日最高", f"¥{stock_data['high']:.2f}")
+                    with col3:
+                        st.metric("今日最低", f"¥{stock_data['low']:.2f}")
+                    with col4:
+                        st.metric("成交量", f"{stock_data['volume']:.0f}手")
 
-            # 显示当前股价
-            col1, col2, col3, col4 = st.columns(4)
-            with col1:
-                st.metric("当前股价", f"¥{current_price:.2f}", f"{change_pct:+.2f}%")
-            with col2:
-                st.metric("今日最高", f"¥{current_price * 1.02:.2f}")
-            with col3:
-                st.metric("今日最低", f"¥{current_price * 0.98:.2f}")
-            with col4:
-                st.metric("成交量", f"{np.random.randint(1000, 50000)}万手")
+                    st.markdown("---")
 
-            st.markdown("---")
+                    # 使用真实预测结果
+                    prediction = {
+                        'predicted_price': result['predicted_price'],
+                        'predicted_change': result['predicted_change'],
+                        'avg_confidence': result['confidence'],
+                        'bullish_count': result['bullish_count'],
+                        'bearish_count': result['bearish_count'],
+                        'neutral_count': result['neutral_count'],
+                        'agents': result['agent_predictions']
+                    }
+                else:
+                    st.error("⚠️ 无法获取股票数据，请检查股票代码")
+                    st.stop()
+            else:
+                # 降级到模拟数据
+                import time
+                time.sleep(2)
+                current_price = np.random.uniform(10, 200)
+                change_pct = np.random.uniform(-3, 3)
 
-            # AI预测结果
-            prediction = get_ai_prediction(current_price)
+                st.success(f"✅ 分析完成！股票代码: {stock_code}")
+
+                col1, col2, col3, col4 = st.columns(4)
+                with col1:
+                    st.metric("当前股价", f"¥{current_price:.2f}", f"{change_pct:+.2f}%")
+                with col2:
+                    st.metric("今日最高", f"¥{current_price * 1.02:.2f}")
+                with col3:
+                    st.metric("今日最低", f"¥{current_price * 0.98:.2f}")
+                with col4:
+                    st.metric("成交量", f"{np.random.randint(1000, 50000)}万手")
+
+                st.markdown("---")
+                prediction = get_ai_prediction(current_price)
 
             col1, col2, col3 = st.columns(3)
 
@@ -352,13 +392,19 @@ elif page == "📈 A股价格预测":
             cols = st.columns(3)
             for idx, agent in enumerate(prediction['agents']):
                 with cols[idx % 3]:
-                    emoji = "🟢" if agent['prediction'] == '看涨' else "🟡" if agent['prediction'] == '中性' else "🔴"
+                    # 兼容两种数据格式
+                    agent_name = agent.get('agent_name') or agent.get('name')
+                    agent_pred = agent.get('prediction')
+                    agent_conf = agent.get('confidence')
+                    agent_reason = agent.get('reason')
+
+                    emoji = "🟢" if agent_pred == '看涨' else "🟡" if agent_pred == '中性' else "🔴"
                     st.markdown(f"""
-                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid {'#28a745' if agent['prediction'] == '看涨' else '#ffc107'};">
-                        <h4>{emoji} {agent['name']}</h4>
-                        <p><strong>预测:</strong> {agent['prediction']}</p>
-                        <p><strong>置信度:</strong> {agent['confidence']*100:.1f}%</p>
-                        <p><strong>理由:</strong> {agent['reason']}</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 4px solid {'#28a745' if agent_pred == '看涨' else '#ffc107' if agent_pred == '中性' else '#dc3545'};">
+                        <h4>{emoji} {agent_name}</h4>
+                        <p><strong>预测:</strong> {agent_pred}</p>
+                        <p><strong>置信度:</strong> {agent_conf*100:.1f}%</p>
+                        <p><strong>理由:</strong> {agent_reason}</p>
                     </div>
                     """, unsafe_allow_html=True)
 
