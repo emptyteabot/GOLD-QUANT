@@ -23,12 +23,20 @@ try:
 except:
     pass
 
-import gold_config as cfg
-from ashare_provider import AShareGoldProvider
-from gold_strategy_engine import (GoldStrategyEngine, TechnicalIndicators, TradeSignal,
-                                  RegimeDetector, CandlestickPatterns, MacroSignalAnalyzer)
-from license_manager import (check_license, activate_license, get_tier_features,
-                              _get_machine_id, activate_in_session)
+try:
+    import gold_config as cfg
+except:
+    # 使用默认配置
+    class cfg:
+        PRODUCT_NAME = "Gold Advisor Pro"
+        PRODUCT_VERSION = "3.0"
+
+# 暂时注释掉不需要的导入
+# from ashare_provider import AShareGoldProvider
+# from gold_strategy_engine import (GoldStrategyEngine, TechnicalIndicators, TradeSignal,
+#                                   RegimeDetector, CandlestickPatterns, MacroSignalAnalyzer)
+# from license_manager import (check_license, activate_license, get_tier_features,
+#                               _get_machine_id, activate_in_session)
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
