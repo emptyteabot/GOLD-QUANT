@@ -31,118 +31,111 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# 现代化浅色主题CSS
+# 纯白底黑字主题CSS
 st.markdown("""
 <style>
-    /* 全局样式 */
+    /* 全局样式 - 纯白背景 */
     .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+        background: #ffffff;
     }
 
-    /* 主标题 */
+    /* 主标题 - 白底黑字 */
     .main-title {
         text-align: center;
-        color: #ffffff;
+        color: #000000;
         font-size: 2.8em;
         font-weight: 800;
         padding: 30px;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        border-radius: 20px;
+        background: #ffffff;
+        border: 2px solid #000000;
+        border-radius: 10px;
         margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
     }
 
-    /* 卡片样式 */
+    /* 卡片样式 - 白底黑边框 */
     .modern-card {
         background: #ffffff;
         padding: 25px;
-        border-radius: 15px;
-        border: 1px solid #e0e6ed;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        border-radius: 10px;
+        border: 1px solid #000000;
         margin-bottom: 20px;
     }
 
-    /* 预测卡片 */
+    /* 预测卡片 - 白底黑字 */
     .prediction-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: #ffffff;
         padding: 30px;
-        border-radius: 20px;
-        color: white;
+        border-radius: 10px;
+        border: 2px solid #000000;
+        color: #000000;
         text-align: center;
-        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        transition: transform 0.3s ease;
     }
 
-    .prediction-card:hover {
-        transform: translateY(-5px);
-    }
-
-    /* 交易信号卡片 */
+    /* 交易信号卡片 - 白底黑字 */
     .signal-card {
         padding: 25px;
-        border-radius: 15px;
-        color: white;
+        border-radius: 10px;
+        background: #ffffff;
+        border: 2px solid #000000;
+        color: #000000;
         text-align: center;
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
         margin-bottom: 15px;
     }
 
     .signal-strong-buy {
-        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        border-color: #28a745;
+        border-width: 3px;
     }
 
     .signal-buy {
-        background: linear-gradient(135deg, #56ab2f 0%, #a8e063 100%);
+        border-color: #5cb85c;
+        border-width: 3px;
     }
 
     .signal-hold {
-        background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%);
+        border-color: #ffc107;
+        border-width: 3px;
     }
 
     .signal-sell {
-        background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        border-color: #fd7e14;
+        border-width: 3px;
     }
 
     .signal-strong-sell {
-        background: linear-gradient(135deg, #c31432 0%, #240b36 100%);
+        border-color: #dc3545;
+        border-width: 3px;
     }
 
-    /* Agent分析卡片 */
+    /* Agent分析卡片 - 白底黑字 */
     .agent-card {
         background: #ffffff;
         padding: 20px;
-        border-radius: 12px;
+        border-radius: 10px;
         margin-bottom: 15px;
-        border-left: 4px solid;
-        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
-        transition: all 0.3s ease;
+        border: 1px solid #000000;
     }
 
-    .agent-card:hover {
-        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.12);
-        transform: translateX(5px);
-    }
-
-    /* 置信度样式 */
+    /* 置信度样式 - 黑色文字 */
     .confidence-high {
-        color: #28a745;
+        color: #000000;
         font-weight: bold;
     }
 
     .confidence-medium {
-        color: #ffc107;
+        color: #000000;
         font-weight: bold;
     }
 
     .confidence-low {
-        color: #dc3545;
+        color: #000000;
         font-weight: bold;
     }
 
     /* 更新时间 */
     .update-time {
         text-align: center;
-        color: #6c757d;
+        color: #000000;
         font-size: 0.9em;
         padding: 10px;
     }
@@ -151,33 +144,57 @@ st.markdown("""
     .stButton>button {
         border-radius: 10px;
         font-weight: 600;
-        transition: all 0.3s ease;
+        background: #ffffff;
+        color: #000000;
+        border: 2px solid #000000;
     }
 
-    /* 指标卡片 */
+    /* 指标卡片 - 白底黑边框 */
     div[data-testid="metric-container"] {
         background: #ffffff;
-        border: 1px solid #e0e6ed;
+        border: 1px solid #000000;
         padding: 15px;
         border-radius: 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     }
 
-    /* Expander样式 */
+    /* Expander样式 - 白底黑字 */
     .streamlit-expanderHeader {
         background: #ffffff;
-        border: 1px solid #e0e6ed;
+        border: 1px solid #000000;
         border-radius: 10px;
         font-weight: 600;
+        color: #000000;
     }
 
-    /* 文字颜色调整 */
-    h1, h2, h3, h4, h5, h6, p, li, span {
-        color: #2c3e50;
+    /* 所有文字颜色 - 黑色 */
+    h1, h2, h3, h4, h5, h6, p, li, span, div {
+        color: #000000 !important;
     }
 
     .stMarkdown {
-        color: #2c3e50;
+        color: #000000 !important;
+    }
+
+    /* 侧边栏 - 白底黑字 */
+    section[data-testid="stSidebar"] {
+        background: #ffffff;
+        border-right: 2px solid #000000;
+    }
+
+    section[data-testid="stSidebar"] * {
+        color: #000000 !important;
+    }
+
+    /* 输入框 - 白底黑字黑边框 */
+    .stTextInput>div>div>input {
+        background: #ffffff;
+        color: #000000;
+        border: 1px solid #000000;
+    }
+
+    /* Radio按钮 - 黑色 */
+    .stRadio>div {
+        color: #000000;
     }
 </style>
 """, unsafe_allow_html=True)
