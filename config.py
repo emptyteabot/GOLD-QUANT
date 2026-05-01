@@ -14,6 +14,11 @@ load_dotenv(_ENV_PATH)
 
 # ---------- Core Trading ----------
 INST_ID = os.getenv('INST_ID', 'XAU-USDT-SWAP')
+DATA_SOURCE_EXCHANGE = os.getenv('DATA_SOURCE_EXCHANGE', 'OKX')
+EXECUTION_EXCHANGE = os.getenv('EXECUTION_EXCHANGE', 'WEEX')
+EXECUTION_SYMBOL = os.getenv('EXECUTION_SYMBOL', 'cmt_xautusdt')
+DATA_INST_ID = os.getenv('DATA_INST_ID', 'XAUT-USDT')
+FAIR_VALUE_INST_ID = os.getenv('FAIR_VALUE_INST_ID', 'XAU-USDT-SWAP')
 
 # Risk sizing
 RISK_PER_TRADE = float(os.getenv('RISK_PER_TRADE', '0.01'))  # 1% of equity
@@ -115,6 +120,34 @@ HTTPS_PROXY = os.getenv('HTTPS_PROXY')
 OKX_API_KEY = os.getenv('OKX_API_KEY')
 OKX_SECRET_KEY = os.getenv('OKX_SECRET_KEY')
 OKX_PASSPHRASE = os.getenv('OKX_PASSPHRASE')
+OKX_BASE_URL = os.getenv('OKX_BASE_URL', 'https://www.okx.com')
+
+# WEEX
+WEEX_API_KEY = os.getenv('WEEX_API_KEY')
+WEEX_SECRET_KEY = os.getenv('WEEX_SECRET_KEY')
+WEEX_PASSPHRASE = os.getenv('WEEX_PASSPHRASE')
+WEEX_BASE_URL = os.getenv('WEEX_BASE_URL', 'https://api-contract.weex.com')
+WEEX_MARGIN_MODE = int(os.getenv('WEEX_MARGIN_MODE', '1'))  # 1=cross, 3=isolated
+WEEX_LOCALE = os.getenv('WEEX_LOCALE', 'zh-CN')
+WEEX_AUTOTRADE_ENABLED = bool(int(os.getenv('WEEX_AUTOTRADE_ENABLED', '0')))
+WEEX_MAX_POSITION_PCT = float(os.getenv('WEEX_MAX_POSITION_PCT', '0.10'))
+WEEX_LIVE_MIN_CONFIDENCE = float(os.getenv('WEEX_LIVE_MIN_CONFIDENCE', '0.72'))
+WEEX_MIN_RISK_REWARD = float(os.getenv('WEEX_MIN_RISK_REWARD', '1.5'))
+WEEX_MIN_ABS_SIGNAL = float(os.getenv('WEEX_MIN_ABS_SIGNAL', '0.35'))
+WEEX_MIN_FAIR_VALUE_Z = float(os.getenv('WEEX_MIN_FAIR_VALUE_Z', '1.2'))
+WEEX_MAX_OPEN_POSITIONS = int(os.getenv('WEEX_MAX_OPEN_POSITIONS', '1'))
+WEEX_MICRO_ARB_MODE = bool(int(os.getenv('WEEX_MICRO_ARB_MODE', '1')))
+WEEX_MICRO_LEVERAGE = int(os.getenv('WEEX_MICRO_LEVERAGE', str(MAX_LEVERAGE)))
+WEEX_FIXED_ORDER_QTY = float(os.getenv('WEEX_FIXED_ORDER_QTY', '0'))
+WEEX_MICRO_TP_PCT = float(os.getenv('WEEX_MICRO_TP_PCT', '0.0030'))
+WEEX_MICRO_SL_PCT = float(os.getenv('WEEX_MICRO_SL_PCT', '0.0022'))
+WEEX_MICRO_MIN_SPREAD_PCT = float(os.getenv('WEEX_MICRO_MIN_SPREAD_PCT', '0.0012'))
+WEEX_HARD_MAX_LEVERAGE = int(os.getenv('WEEX_HARD_MAX_LEVERAGE', str(WEEX_MICRO_LEVERAGE)))
+WEEX_MIN_AVAILABLE_USDT = float(os.getenv('WEEX_MIN_AVAILABLE_USDT', '25'))
+WEEX_MIN_LIQUIDATION_BUFFER_PCT = float(os.getenv('WEEX_MIN_LIQUIDATION_BUFFER_PCT', '0.01'))
+WEEX_BLOCK_ON_EXISTING_POSITION = bool(int(os.getenv('WEEX_BLOCK_ON_EXISTING_POSITION', '1')))
+WEEX_REQUIRE_TPSL_FOR_EXISTING_POSITION = bool(int(os.getenv('WEEX_REQUIRE_TPSL_FOR_EXISTING_POSITION', '1')))
+WEEX_DAILY_RISK_STATE_PATH = os.getenv('WEEX_DAILY_RISK_STATE_PATH', '_tmp\\weex_daily_risk_state.json')
 
 # Feishu
 FEISHU_WEBHOOK = os.getenv('FEISHU_WEBHOOK_URL')
@@ -130,5 +163,24 @@ GEMINI_MODEL = os.getenv('GEMINI_MODEL')
 PUSH_INTERVAL = os.getenv('PUSH_INTERVAL', '')
 PUSH_ON_SIGNAL_ONLY = bool(int(os.getenv('PUSH_ON_SIGNAL_ONLY', '0')))
 
+# OpenAI-compatible LLM agents
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+OPENAI_BASE_URL = os.getenv('OPENAI_BASE_URL', '')
+OPENAI_MODEL = os.getenv('OPENAI_MODEL', 'gpt-5.4')
+OPENAI_REASONING_EFFORT = os.getenv('OPENAI_REASONING_EFFORT', 'medium')
+ENABLE_LLM_AGENTS = bool(int(os.getenv('ENABLE_LLM_AGENTS', '1')))
+OPENAI_AGENT_TIMEOUT_SEC = int(os.getenv('OPENAI_AGENT_TIMEOUT_SEC', '25'))
+OPENAI_AGENT_MAX_WORKERS = int(os.getenv('OPENAI_AGENT_MAX_WORKERS', '8'))
+
+# Final reasoning gate
+ENABLE_FINAL_REASONER = bool(int(os.getenv('ENABLE_FINAL_REASONER', '1')))
+FINAL_REASONER_PROVIDER = os.getenv('FINAL_REASONER_PROVIDER', 'openai_compat').strip().lower()
+FINAL_REASONER_TIMEOUT_SEC = int(os.getenv('FINAL_REASONER_TIMEOUT_SEC', os.getenv('DEEPSEEK_TIMEOUT_SEC', '45')))
+
+# Optional legacy DeepSeek provider
+DEEPSEEK_API_KEY = os.getenv('DEEPSEEK_API_KEY')
+DEEPSEEK_BASE_URL = os.getenv('DEEPSEEK_BASE_URL', 'https://api.deepseek.com')
+DEEPSEEK_MODEL = os.getenv('DEEPSEEK_MODEL', 'deepseek-reasoner')
+
 # Failsafe: signal-only mode (no auto trade at night)
-SIGNAL_ONLY = True
+SIGNAL_ONLY = bool(int(os.getenv('SIGNAL_ONLY', '1')))

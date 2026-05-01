@@ -91,6 +91,64 @@ class RiskManager:
             'risk_amount': actual_risk
         }
     
+    def calculate_scalping_position_size(
+        self,
+        account: Dict,
+        price: float,
+        leverage: int,
+        stop_loss_price: float,
+        take_profit_price: float,
+        position_size_pct: float,
+        confidence: float = 0.0,
+    ) -> Dict:
+        """Size a short-term trade from stop distance first, then margin cap."""
+        available = float(account['available'])
+        total_equity = float(account['total_equity'])
+        contract_size = 0.001
+
+        if available <= 0 or total_equity <= 0:
+            logger.warning("Scalping position blocked: no available capital or invalid equity.")
+            return None
+
+        risk_multiplier = 0.5 + max(0.0, min(confidence, 1.0)) * 0.5
+        risk_amount = total_equity * config.RISK_PER_TRADE * risk_multiplier
+
+        margin_cap_ratio = max(0.0, min(position_size_pct, config.MAX_TOTAL_POSITION))
+        if margin_cap_ratio <= 0:
+            logger.warning("Scalping position blocked: non-positive margin cap ratio.")
+            return None
+        margin_to_use = min(available * margin_cap_ratio, total_equity * config.MAX_TOTAL_POSITION)
+
+        stop_distance = abs(price - stop_loss_price)
+        stop_distance = max(stop_distance, price * 0.001)
+
+        risk_based_oz = risk_amount / stop_distance
+        margin_based_oz = (margin_to_use * leverage) / price
+        oz_size = min(risk_based_oz, margin_based_oz)
+
+        import math
+        contracts = math.floor(oz_size / contract_size)
+        if contracts < 1:
+            logger.warning("Scalping position too small after risk sizing.")
+            return None
+
+        oz_size = contracts * contract_size
+        margin_needed = (oz_size * price) / leverage
+        actual_risk = oz_size * stop_distance
+        position_usage = margin_needed / total_equity if total_equity else 0.0
+
+        return {
+            'size': contracts,
+            'oz_size': oz_size,
+            'margin': margin_needed,
+            'stop_loss': stop_loss_price,
+            'take_profit': take_profit_price,
+            'risk_amount': actual_risk,
+            'leverage': leverage,
+            'position_usage': position_usage,
+            'stop_distance': stop_distance,
+        }
+
     def check_pyramid_condition(self, position: Dict, current_price: float) -> bool:
         """
         检查是否满足浮盈加仓条件

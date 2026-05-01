@@ -1,0 +1,18 @@
+[Unit]
+Description=GOLD-QUANT WEEX XAUT Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/opt/gold-quant-weex
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/opt/gold-quant-weex/.venv/bin/python /opt/gold-quant-weex/okx_weex_xaut_service.py
+Restart=always
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
